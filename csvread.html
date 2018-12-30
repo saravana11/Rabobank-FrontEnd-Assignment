@@ -1,0 +1,72 @@
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload.min.js"></script>
+<style>
+table, th , td  {
+  border: 1px solid grey;
+  border-collapse: collapse;
+  padding: 5px;
+}
+table tr:nth-child(odd) {
+  background-color: #f1f1f1;
+}
+table tr:nth-child(even) {
+  background-color: #ffffff;
+}
+</style>
+<script type="text/javascript">
+    var app = angular.module('MyApp', ['ngFileUpload'])
+    app.controller('MyController', function ($scope, $window) {
+        $scope.SelectFile = function (file) {
+            $scope.SelectedFile = file;
+        };
+        $scope.Upload = function () {
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv|.txt)$/;
+            if (regex.test($scope.SelectedFile.name.toLowerCase())) {
+                if (typeof (FileReader) != "undefined") {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var records = new Array();
+                        var rows = e.target.result.split("\r\n");
+                        for (var i = 0; i < rows.length; i++) {
+                            var cells = rows[i].split(",");
+                            if (cells.length > 1) {
+                                var record = {};
+                                record.firstName = cells[0];
+                                record.surName = cells[1];
+                                record.issueCount = cells[2];
+                                record.dateofbirth = cells[3];
+                                records.push(record);
+                                $scope.$apply(function () {
+                                    $scope.Records = records;
+                                    $scope.IsVisible = true;
+                                });
+                            }
+                        }
+ 
+                    }
+                    reader.readAsText($scope.SelectedFile);
+                } else {
+                    $window.alert("HTML5 won't support here.");
+                }
+            } else {
+                $window.alert("Kindly upload the valid CSV file.");
+            }
+        }
+    });
+</script>
+<div ng-app="MyApp" ng-controller="MyController">
+    <input type="file" ngf-select="SelectFile($file)" />
+    <input type="button" value="Upload" ng-click="Upload()" />
+    <hr />
+    <table id="tblCustomers" cellpadding="2" cellspacing="2" ng-show="IsVisible" >
+	<tr><td><input ng-model="f.issueCount"></td></tr>
+            <tr ng-repeat="m in Records | filter:f"></tr>
+               <tr input ng-model="f.issueCount" ng-repeat="m in Records | filter:f">
+			   <td>{{m.issueCount}} </td>
+			   <td>{{m.firstName}}</td>
+                <td>{{m.surName}}</td>
+                <td>{{m.dateofbirth}}</td>
+            </tr>
+        </tbody>
+    </table>
+<strong></strong></div><u></u>
